@@ -1,0 +1,23 @@
+{
+  "name": "awallef/cakephp-redis",
+  "description": "CakePHP redis caching & storage",
+  "type": "cakephp-plugin",
+  "require": {
+    "php": ">=5.5.9",
+    "cakephp/cakephp": "^3.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Awallef\\Redis\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Awallef\\Redis\\Test\\": "tests",
+      "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
+    }
+  }
+}
