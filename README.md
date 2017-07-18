@@ -1,4 +1,4 @@
-# cakephp-cache plugin for CakePHP
+# cakephp-redis plugin for CakePHP
 This plugin allows you cache and store data in redis engine
 
 ## Installation
