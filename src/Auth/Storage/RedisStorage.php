@@ -8,6 +8,10 @@ use Cake\Auth\Storage\MemoryStorage
 */
 class RedisStorage implements MemoryStorage
 {
+  protected $_defaultConfig = [
+    'key' => 'Auth.User',
+    'redirect' => 'Auth.redirect'
+  ];
 
   public function read()
   {

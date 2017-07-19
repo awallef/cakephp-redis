@@ -1,9 +1,9 @@
 <?php
 
 namespace Awallef\Redis\Cache\Engine;
-use Cake\Cache\Engine\RedisEngine;
+use Cake\Cache\Engine\RedisEngine as CakeRedisEngine;
 
-class RedisEngine extends RedisEngine
+class RedisEngine extends CakeRedisEngine
 {
   protected $_defaultConfig = [
       'database' => 0,
