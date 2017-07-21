@@ -1,10 +1,11 @@
 <?php
 namespace Awallef\Redis\Auth\Storage;
 
-use Cake\Core\Configure;
 use Awallef\Redis\Cache\Engine\RedisEngine;
 use Cake\Core\InstanceConfigTrait;
+use Cake\Utility\Security;
 use Cake\Http\Response;
+use Cake\Core\Configure;
 use Cake\Http\ServerRequest;
 use Cake\Auth\Storage\MemoryStorage;
 
@@ -13,23 +14,26 @@ class RedisStorage extends MemoryStorage
   use InstanceConfigTrait;
 
   protected $_defaultConfig = [
-    'header' => 'authorization',
-    'header-prefix' => 'bearer',
-    'parameter' => 'token',
-
-    'database' => 0,
-    'duration' => 3600,
-    'groups' => [],
-    'password' => false,
-    'persistent' => true,
-    'port' => 6379,
-    'prefix' => 'dev.your-site.com:token:',
-    'probability' => 100,
-    'host' => null,
-    'server' => '127.0.0.1',
-    'timeout' => 0,
-    'unix_socket' => false,
-    'serialize' => true,
+    'token' => [
+      'header' => 'authorization',
+      'prefix' => 'bearer',
+      'parameter' => 'token',
+    ],
+    'redis' => [
+      'database' => 0,
+      'duration' => 3600,
+      'groups' => [],
+      'password' => false,
+      'persistent' => true,
+      'port' => 6379,
+      'prefix' => 'dev.your-site.com:token:',
+      'probability' => 100,
+      'host' => null,
+      'server' => '127.0.0.1',
+      'timeout' => 0,
+      'unix_socket' => false,
+      'serialize' => true,
+    ]
   ];
 
   protected $_engine = null;
@@ -38,20 +42,15 @@ class RedisStorage extends MemoryStorage
 
   public function __construct(ServerRequest $request, Response $response, array $config = [])
   {
-    try {
-      Configure::load('auth', 'default');
-      $this->setConfig(Configure::read('Awallef.Redis.auth'));
-    } catch (Exception $ex) {
-      throw new Exception(__('Missing configuration file: "auth/{0}.php"!!!', 'auth'), 1);
-    }
+    $this->setConfig($config);
     $this->_engine = new RedisEngine();
-    $this->_engine->init($this->config());
+    $this->_engine->init($this->config()['redis']);
     $this->_token = $this->getToken($request);
   }
 
   public function read()
   {
-    return $this->_engine->read($this->_token);
+    return !$this->_token? $this->_token: $this->_engine->read($this->_token);
   }
 
   /**
@@ -59,6 +58,11 @@ class RedisStorage extends MemoryStorage
   */
   public function write($user)
   {
+    if(!$this->_token && !empty($user['x-token']))
+    {
+      $this->_token = $user['x-token'];
+      unset($user['x-token']);
+    }
     return $this->_engine->write($this->_token, $user);
   }
 
@@ -72,15 +76,15 @@ class RedisStorage extends MemoryStorage
 
   public function getToken($request = null)
   {
-    $config = $this->_config;
+    $config = $this->_config['token'];
 
     if (!$request) {
       return $this->_token;
     }
 
     $header = $request->header($config['header']);
-    if ($header && stripos($header, $config['header-prefix']) === 0) {
-      return $this->_token = str_ireplace($config['header-prefix'] . ' ', '', $header);
+    if ($header && stripos($header, $config['prefix']) === 0) {
+      return $this->_token = str_ireplace($config['prefix'] . ' ', '', $header);
     }
 
     if (!empty($this->_config['parameter'])) {
