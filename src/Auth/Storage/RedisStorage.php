@@ -18,6 +18,7 @@ class RedisStorage extends MemoryStorage
       'header' => 'authorization',
       'prefix' => 'bearer',
       'parameter' => 'token',
+      'userFiled' => 'X-Token'
     ],
     'redis' => [
       'database' => 0,
@@ -58,10 +59,11 @@ class RedisStorage extends MemoryStorage
   */
   public function write($user)
   {
-    if(!$this->_token && !empty($user['x-token']))
+    $config = $this->_config['token'];
+    if(!$this->_token && !empty($user[$config['userFiled']]))
     {
-      $this->_token = $user['x-token'];
-      unset($user['x-token']);
+      $this->_token = $user[$config['userFiled']];
+      unset($user[$config['userFiled']]);
     }
     return $this->_engine->write($this->_token, $user);
   }
@@ -91,6 +93,6 @@ class RedisStorage extends MemoryStorage
       $this->_token = $request->query($this->_config['parameter']);
     }
 
-    return $this->_token;
+    return $this->_token? md5($this->_token): $this->_token;
   }
 }
