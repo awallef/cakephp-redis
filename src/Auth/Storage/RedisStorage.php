@@ -78,21 +78,18 @@ class RedisStorage extends MemoryStorage
 
   public function getToken($request = null)
   {
-    $config = $this->_config['token'];
-
     if (!$request) {
       return $this->_token;
     }
-
+    $config = $this->_config['token'];
     $header = $request->header($config['header']);
     if ($header && stripos($header, $config['prefix']) === 0) {
-      return $this->_token = str_ireplace($config['prefix'] . ' ', '', $header);
+      return md5($this->_token = str_ireplace($config['prefix'] . ' ', '', $header));
     }
 
     if (!empty($this->_config['parameter'])) {
       $this->_token = $request->query($this->_config['parameter']);
     }
-
     return $this->_token? md5($this->_token): $this->_token;
   }
 }
