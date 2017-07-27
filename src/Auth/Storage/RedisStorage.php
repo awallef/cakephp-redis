@@ -62,7 +62,7 @@ class RedisStorage extends MemoryStorage
     $config = $this->_config['token'];
     if(!$this->_token && !empty($user[$config['userFiled']]))
     {
-      $this->_token = $user[$config['userFiled']];
+      $this->_token = md5($user[$config['userFiled']]);
       unset($user[$config['userFiled']]);
     }
     return $this->_engine->write($this->_token, $user);
