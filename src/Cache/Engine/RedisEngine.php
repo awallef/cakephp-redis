@@ -49,6 +49,10 @@ class RedisEngine extends CakeRedisEngine
 
   public function write($key, $value)
   {
+    if ($value === '') {
+      return false;
+    }
+
     $key = $this->_key($key);
     if (!is_int($value) && $this->_config['serialize'] ) {
       $value = serialize($value);
